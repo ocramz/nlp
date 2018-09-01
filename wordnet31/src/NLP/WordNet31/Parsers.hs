@@ -1,8 +1,15 @@
+{-# language OverloadedStrings #-}
+{-# language LambdaCase #-}
 module NLP.WordNet31.Parsers where
 
-import Data.Attoparsec.Text.Lazy 
-import qualified Data.Text.Lazy as T
+import Data.Functor ( (<$) )
+import Control.Applicative ( (<|>) )
+import Control.Monad (replicateM)
 
+import qualified Data.Attoparsec.Text as A
+import qualified Data.Attoparsec.Text.Lazy as AL
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text as T
 
 
 {- |
@@ -13,22 +20,39 @@ Each index file is an alphabetized list of all the words found in WordNet in the
 
 A data file for a syntactic category contains information corresponding to the synsets that were specified in the lexicographer files, with relational pointers resolved to synset_offset s. Each line corresponds to a synset. Pointers are followed and hierarchies traversed by moving from one synset to another via the synset_offset s.
 
--- index.noun :
 
-compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416  
-
-noncompliance n 1 4 ! @ ~ + 1 0 01182197  
 
 -- data.noun "compliance" :
 
 0101 + 02548492 v 0101 ! 01182197 n 0101 ~ 01169875 n 0000 | the act of obeying; dutiful or submissive behavior with respect to another person
 -}
 
+type Lemma = T.Text
 
+lemma :: AL.Parser Lemma
+lemma = A.takeWhile (A.inClass "a-z_")
 
+data Pos = Noun | Verb | Adj | Adv deriving (Eq, Show, Ord)
+
+noun :: A.Parser Pos
+noun =
+  (Noun <$ A.char 'n') <|>
+  (Verb <$ A.char 'v') <|>
+  (Adj <$ A.char 'a') <|>
+  (Adv <$ A.char 'r')
+
+synsetCnt = A.decimal
+
+pCnt = A.decimal
 
 {- |
 Each index file begins with several lines containing a copyright notice, version number, and license agreement. These lines all begin with two spaces and the line number so they do not interfere with the binary search algorithm that is used to look up entries in the index files. All other lines are in the following format. In the field descriptions, number always refers to a decimal integer unless otherwise defined.
+
+-- examples from index.noun :
+
+compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416  
+noncompliance n 1 4 ! @ ~ + 1 0 01182197
+
 
 lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...] 
 
