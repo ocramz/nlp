@@ -27,6 +27,12 @@ Each index file is an alphabetized list of all the words found in WordNet in the
 A data file for a syntactic category contains information corresponding to the synsets that were specified in the lexicographer files, with relational pointers resolved to synset_offset s. Each line corresponds to a synset. Pointers are followed and hierarchies traversed by moving from one synset to another via the synset_offset s.
 -}
 
+-- | mmap a file in read-only mode, starting at a specific byte offset and using an additional parameter (e.g. the read length)
+mmapFile :: FilePath -> Int -> t -> (Ptr p -> t -> IO a) -> IO a
+mmapFile fpath offs nb io = mmapWithFilePtr fpath ReadOnly Nothing $ \(ptr, _) -> do
+  let ptr' = ptr `plusPtr` offs
+  io ptr' nb
+
 
 {-
 -- examples from index.noun :
