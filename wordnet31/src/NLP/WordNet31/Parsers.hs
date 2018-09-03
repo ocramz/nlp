@@ -35,12 +35,20 @@ noncompliance n 1 4 ! @ ~ + 1 0 01182197
 lemma (meanings) (pointers) 
 -}
 
--- data IndexRow = IndexRow Lemma POS Int [ByteOffset] deriving (Eq, Show)
+data IndexRow = IndexRow Lemma POSp Integer [ByteOffset] deriving (Eq, Show)
 
--- indexRow = do
---   l <- lemma <* skipSpace
---   nsyns <- A.decimal <* skipSpace
---   nptrs <- A.decimal <* skipSpace
+indexRow :: A.Parser IndexRow
+indexRow = do
+  l <- lemma <* skipSpace
+  p <- pos <* skipSpace
+  nsyns <- A.decimal <* skipSpace
+  nptrs <- A.decimal <* skipSpace
+  ptrss <- ptrs nptrs p
+  void A.decimal <* skipSpace
+  ntagsense <- A.decimal <* skipSpace
+  offs <- offsets nsyns <* A.endOfLine
+  pure $ IndexRow l ptrss ntagsense offs
+  
   
 --   ps <- ptrs
 --   skipSpace
@@ -52,24 +60,26 @@ lemma :: AL.Parser Lemma
 lemma = A.takeWhile (A.inClass "a-z_")
 
 -- | Part-of-speech
-data POS = Noun [PtrSymNoun] | Verb [PtrSymVerb] | Adj [PtrSymAdj] |  Adv [PtrSymAdv] deriving (Eq, Show)
+data POS = Noun | Verb | Adj |  Adv deriving (Eq, Show)
+data POSp = NounP [PtrSymNoun] | VerbP [PtrSymVerb] | AdjP [PtrSymAdj] |  AdvP [PtrSymAdv] deriving (Eq, Show)
 
 pos :: A.Parser POS 
 pos =
-  (Noun [] <$ A.char 'n') <|>
-  (Verb [] <$ A.char 'v') <|>
-  (Adj [] <$ A.char 'a') <|>
-  (Adv [] <$ A.char 'r')
+  (Noun  <$ A.char 'n') <|>
+  (Verb  <$ A.char 'v') <|>
+  (Adj  <$ A.char 'a') <|>
+  (Adv  <$ A.char 'r')
 
--- ptrs :: Int -> A.Parser POS
--- ptrs n =
---   (Noun <$> (A.char 'n' *> reps n ptrSymNoun)) <|>
---   (Verb <$> (A.char 'v' *> reps n ptrSymVerb)) <|>
---   (Adj <$> (A.char 'a' *> reps n ptrSymAdj)) <|>
---   (Adv <$> (A.char 'r' *> reps n ptrSymAdv))
+ptrs :: Int -> POS -> A.Parser POSp
+ptrs n pp = 
+  case pp of
+    Noun -> NounP <$> reps n ptrSymNoun
+    Verb -> VerbP <$> reps n ptrSymVerb
+    Adj -> AdjP <$> reps n ptrSymAdj
+    Adv -> AdvP <$> reps n ptrSymAdv    
 
 reps :: Int -> A.Parser a -> A.Parser [a]
-reps n f = replicateM n f <* skipSpace
+reps n f = replicateM n (f <* skipSpace)
 
 offsets :: Int -> A.Parser [ByteOffset]
 offsets n = reps n A.decimal
