@@ -6,6 +6,8 @@ import Data.Functor ( (<$) )
 import Control.Applicative ( (<|>) )
 import Control.Monad (void, replicateM)
 
+import qualified Data.List.NonEmpty as NE
+
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Attoparsec.Text.Lazy as AL
 import qualified Data.Text.Lazy as TL
@@ -29,7 +31,7 @@ compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416
 noncompliance n 1 4 ! @ ~ + 1 0 01182197
 -}
 
-data IndexRow = IndexRow Lemma POSp Integer [ByteOffset] deriving (Eq, Show)
+data IndexRow = IndexRow Lemma POSp Integer (NE.NonEmpty ByteOffset) deriving (Eq, Show)
 
 indexRow :: A.Parser IndexRow
 indexRow = do
@@ -41,7 +43,7 @@ indexRow = do
   void A.decimal <* skipSpace
   ntagsense <- A.decimal <* skipSpace
   offs <- offsets nsyns <* A.endOfLine
-  pure $ IndexRow l ptrss ntagsense offs
+  pure $ IndexRow l ptrss ntagsense (NE.fromList offs)
   
 
 type Lemma = T.Text
