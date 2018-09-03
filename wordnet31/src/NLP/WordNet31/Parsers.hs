@@ -4,7 +4,7 @@ module NLP.WordNet31.Parsers where
 
 import Data.Functor ( (<$) )
 import Control.Applicative ( (<|>) )
-import Control.Monad (replicateM)
+import Control.Monad (void, replicateM)
 
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Attoparsec.Text.Lazy as AL
@@ -23,19 +23,58 @@ A data file for a syntactic category contains information corresponding to the s
 
 -}
 
+
+{-
+-- examples from index.noun :
+
+compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416  
+noncompliance n 1 4 ! @ ~ + 1 0 01182197
+-}
+
+{-
+lemma (meanings) (pointers) 
+-}
+
+-- data IndexRow = IndexRow Lemma POS Int [ByteOffset] deriving (Eq, Show)
+
+-- indexRow = do
+--   l <- lemma <* skipSpace
+--   nsyns <- A.decimal <* skipSpace
+--   nptrs <- A.decimal <* skipSpace
+  
+--   ps <- ptrs
+--   skipSpace
+
 type Lemma = T.Text
+type ByteOffset = Int
 
 lemma :: AL.Parser Lemma
 lemma = A.takeWhile (A.inClass "a-z_")
 
--- data Pos = Noun | Verb | Adj | Adv deriving (Eq, Show, Ord)
+-- | Part-of-speech
+data POS = Noun [PtrSymNoun] | Verb [PtrSymVerb] | Adj [PtrSymAdj] |  Adv [PtrSymAdv] deriving (Eq, Show)
 
--- noun :: A.Parser Pos
--- noun =
---   (Noun <$ A.char 'n') <|>
---   (Verb <$ A.char 'v') <|>
---   (Adj <$ A.char 'a') <|>
---   (Adv <$ A.char 'r')
+pos :: A.Parser POS 
+pos =
+  (Noun [] <$ A.char 'n') <|>
+  (Verb [] <$ A.char 'v') <|>
+  (Adj [] <$ A.char 'a') <|>
+  (Adv [] <$ A.char 'r')
+
+-- ptrs :: Int -> A.Parser POS
+-- ptrs n =
+--   (Noun <$> (A.char 'n' *> reps n ptrSymNoun)) <|>
+--   (Verb <$> (A.char 'v' *> reps n ptrSymVerb)) <|>
+--   (Adj <$> (A.char 'a' *> reps n ptrSymAdj)) <|>
+--   (Adv <$> (A.char 'r' *> reps n ptrSymAdv))
+
+reps :: Int -> A.Parser a -> A.Parser [a]
+reps n f = replicateM n f <* skipSpace
+
+offsets :: Int -> A.Parser [ByteOffset]
+offsets n = reps n A.decimal
+
+
 
 -- synsetCnt = A.decimal
 
@@ -206,6 +245,15 @@ synset_offset
     Byte offset in data.pos file of a synset containing lemma . Each synset_offset in the list corresponds to a different sense of lemma in WordNet. synset_offset is an 8 digit, zero-filled decimal integer that can be used with fseek(3) to read a synset from the data file. When passed to read_synset(3WN) along with the syntactic category, a data structure containing the parsed synset is returned. 
 -}
 
+skipSpace :: A.Parser ()
+skipSpace = void A.space
+
+-- index = do
+--   l <- lemma
+--   p <- pos <* skipSpace
+--   pCnt <- A.decimal <* skipSpace
+  
+  
 
 
 
