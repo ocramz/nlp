@@ -13,6 +13,10 @@ import qualified Data.Attoparsec.Text.Lazy as AL
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
 
+import Foreign.Ptr (Ptr(..), plusPtr)
+import Foreign.ForeignPtr (ForeignPtr(..)) 
+import System.IO.MMap (Mode(..), mmapWithFilePtr)
+import Data.Int (Int64(..))
 
 {- |
 
