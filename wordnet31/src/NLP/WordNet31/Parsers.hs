@@ -19,8 +19,6 @@ For each syntactic category, two files are needed to represent the contents of t
 Each index file is an alphabetized list of all the words found in WordNet in the corresponding part of speech. On each line, following the word, is a list of byte offsets (synset_offset s) in the corresponding data file, one for each synset containing the word. Words in the index file are in lower case only, regardless of how they were entered in the lexicographer files. This folds various orthographic representations of the word into one line enabling database searches to be case insensitive. See wninput(5WN) for a detailed description of the lexicographer files
 
 A data file for a syntactic category contains information corresponding to the synsets that were specified in the lexicographer files, with relational pointers resolved to synset_offset s. Each line corresponds to a synset. Pointers are followed and hierarchies traversed by moving from one synset to another via the synset_offset s.
-
-
 -}
 
 
@@ -31,10 +29,6 @@ compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416
 noncompliance n 1 4 ! @ ~ + 1 0 01182197
 -}
 
-{-
-lemma (meanings) (pointers) 
--}
-
 data IndexRow = IndexRow Lemma POSp Integer [ByteOffset] deriving (Eq, Show)
 
 indexRow :: A.Parser IndexRow
@@ -43,15 +37,12 @@ indexRow = do
   p <- pos <* skipSpace
   nsyns <- A.decimal <* skipSpace
   nptrs <- A.decimal <* skipSpace
-  ptrss <- ptrs nptrs p
+  ptrss <- ptrs nptrs p <* skipSpace
   void A.decimal <* skipSpace
   ntagsense <- A.decimal <* skipSpace
   offs <- offsets nsyns <* A.endOfLine
   pure $ IndexRow l ptrss ntagsense offs
   
-  
---   ps <- ptrs
---   skipSpace
 
 type Lemma = T.Text
 type ByteOffset = Int
@@ -79,18 +70,15 @@ ptrs n pp =
     Adv -> AdvP <$> reps n ptrSymAdv    
 
 reps :: Int -> A.Parser a -> A.Parser [a]
-reps n f = replicateM n (f <* skipSpace)
+reps n f = do
+  xs <- replicateM (n - 1) (f <* skipSpace)
+  x <- f
+  pure (xs ++ [x])
 
 offsets :: Int -> A.Parser [ByteOffset]
 offsets n = reps n A.decimal
 
 
-
--- synsetCnt = A.decimal
-
--- pCnt = A.decimal
-
--- data Pos = Noun [PtrSymNoun] | 
 
 {-
 The pointer_symbol s for nouns are:
@@ -258,12 +246,7 @@ synset_offset
 skipSpace :: A.Parser ()
 skipSpace = void A.space
 
--- index = do
---   l <- lemma
---   p <- pos <* skipSpace
---   pCnt <- A.decimal <* skipSpace
-  
-  
+   
 
 
 
