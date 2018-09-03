@@ -32,7 +32,7 @@ A data file for a syntactic category contains information corresponding to the s
 -- | mmap a file in read-only mode, starting at a specific byte offset and copying n bytes into a lazy ByteString
 mmapFile ::
      FilePath
-  -> Int64  -- ^ Offset in bytes
+  -> ByteOffset  -- ^ Offset in bytes
   -> Int    -- ^ Size in bytes
   -> IO LBS.ByteString
 mmapFile fp offs n = mmapFileByteStringLazy fp (Just (offs, offs + fromIntegral n))
@@ -60,7 +60,7 @@ indexRow = do
   
 
 type Lemma = T.Text
-type ByteOffset = Int
+type ByteOffset = Int64
 
 lemma :: AL.Parser Lemma
 lemma = A.takeWhile (A.inClass "a-z_")

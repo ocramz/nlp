@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Marco Zocca
 maintainer:          ocramz fripost org
 copyright:           2018 Marco Zocca
-category:            Acme
+category:            NLP
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
