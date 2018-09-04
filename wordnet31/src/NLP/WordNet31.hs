@@ -1,4 +1,4 @@
-module NLP.WordNet31 where
+module NLP.WordNet31 (IndexRow(..), Lemma, ByteOffset, POSp(..), PtrSymNoun(..), PtrSymVerb(..), PtrSymAdj(..), PtrSymAdv(..),  mmapFile) where
 
 import Foreign.Ptr (Ptr(..), plusPtr)
 import Foreign.ForeignPtr (ForeignPtr(..)) 

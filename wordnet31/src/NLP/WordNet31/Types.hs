@@ -3,6 +3,7 @@ module NLP.WordNet31.Types where
 import qualified Data.Text as T
 import Data.Int (Int64(..))
 import Data.Char (toLower)
+import qualified Data.Map as M
 
 import qualified Data.List.NonEmpty as NE
 
@@ -10,7 +11,13 @@ type Lemma = T.Text
 type ByteOffset = Int64
 
 
-data IndexRow = IndexRow Lemma POSp Integer (NE.NonEmpty ByteOffset) deriving (Eq, Show)
+-- | A row of an index file (e.g. index.noun)
+data IndexRow = IndexRow {
+    ixLemma :: Lemma 
+  , ixPOSp :: POSp  -- ^ Part-of-speech label, containing its parsed 'pointer_symbol' s
+  , ixNTagsense :: Integer -- ^ Number of senses of lemma that are ranked according to their frequency of occurrence in semantic concordance texts.
+  , ixPtrs :: NE.NonEmpty ByteOffset -- ^ Byte offset in @data.pos@ file of a synset containing lemma, where @pos@ can be either 'noun', 'verb', 'adj' or 'adv' . Each 'synset_offset' in the list corresponds to a different sense of lemma in WordNet. 'synset_offset' is an 8 digit, zero-filled decimal integer that can be used with @fseek(3)@ to read a synset from the data file. 
+  } deriving (Eq, Show)
 
 -- | Part-of-speech
 data POSp = NounP [PtrSymNoun] | VerbP [PtrSymVerb] | AdjP [PtrSymAdj] |  AdvP [PtrSymAdv] deriving (Eq, Show)
