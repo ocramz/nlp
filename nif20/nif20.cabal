@@ -1,8 +1,8 @@
-name:                wordnet31
+name:                nif20
 version:             0.1.0.0
--- synopsis:
+synopsis:            NLP Interchange Format v2.0
 -- description:
-homepage:            https://github.com/ocramz/nlp
+homepage:            https://github.com/ocramz/nlp/nif20
 license:             BSD3
 license-file:        LICENSE
 author:              Marco Zocca
@@ -12,30 +12,22 @@ category:            NLP
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
-tested-with:         GHC == 8.4.3
+tested-with:         GHC == 7.10.2
 
 library
   default-language:    Haskell2010
   ghc-options:         -Wall
   hs-source-dirs:      src
-  exposed-modules:     NLP.WordNet31
-  other-modules:       NLP.WordNet31.Parsers
-                       NLP.WordNet31.Types
+  exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
-                     , attoparsec
-                     , bytestring
-                     , containers
-                     , filepath
-                     , text
-                     , mmap
 
--- executable wordnet30
+-- executable nif20
 --   default-language:    Haskell2010
 --   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
 --   hs-source-dirs:      app
 --   main-is:             Main.hs
 --   build-depends:       base
---                      , wordnet30
+--                      , nif20
 
 test-suite spec
   default-language:    Haskell2010
@@ -44,10 +36,10 @@ test-suite spec
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , wordnet31
+                     , nif20
                      , hspec
                      , QuickCheck
 
 source-repository head
   type:     git
-  location: https://github.com/ocramz/nlp/wordnet30
+  location: https://github.com/ocramz/nlp/nif20
