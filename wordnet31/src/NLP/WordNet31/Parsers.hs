@@ -34,7 +34,7 @@ compliance n 3 4 ! @ ~ + 3 1 01206166 04648510 01169416
 noncompliance n 1 4 ! @ ~ + 1 0 01182197
 -}
 
-data IndexRow = IndexRow Lemma POSp Integer (NE.NonEmpty ByteOffset) deriving (Eq, Show)
+
 
 indexRow :: A.Parser IndexRow
 indexRow = do
@@ -54,9 +54,6 @@ lemma :: AL.Parser Lemma
 lemma = A.takeWhile (A.inClass "a-z_")
 
 -- | Part-of-speech
-data POS = Noun | Verb | Adj |  Adv deriving (Eq, Show)
-data POSp = NounP [PtrSymNoun] | VerbP [PtrSymVerb] | AdjP [PtrSymAdj] |  AdvP [PtrSymAdv] deriving (Eq, Show)
-
 pos :: A.Parser POS 
 pos =
   (Noun  <$ A.char 'n') <|>
@@ -84,30 +81,7 @@ offsets n = reps n A.decimal
 
 
 
-{-
-The pointer_symbol s for nouns are:
 
-    !    Antonym 
-    @    Hypernym 
-    @i    Instance Hypernym 
-     ~    Hyponym 
-     ~i    Instance Hyponym 
-    #m    Member holonym 
-    #s    Substance holonym 
-    #p    Part holonym 
-    %m    Member meronym 
-    %s    Substance meronym 
-    %p    Part meronym 
-    =    Attribute 
-    +    Derivationally related form         
-    ;c    Domain of synset - TOPIC 
-    -c    Member of this domain - TOPIC 
-    ;r    Domain of synset - REGION 
-    -r    Member of this domain - REGION 
-    ;u    Domain of synset - USAGE 
-    -u    Member of this domain - USAGE 
--}
-data PtrSymNoun = AntoN | HyperN | IHyperN | HypoN | IHypoN | MHoloN | SHoloN | PHoloN | MMeroN | SMeroN | PMeroN | AttrN | DerivRelN | DSynTopicN | MDomTopicN | DSynRegionN | MDomRegionN | DSynUsageN | MDomUsageN deriving (Eq, Show)
 
 ptrSymNoun :: A.Parser PtrSymNoun
 ptrSymNoun =
@@ -131,22 +105,7 @@ ptrSymNoun =
   (DSynUsageN <$ A.string ";u") <|>
   (MDomUsageN <$ A.string "-u") 
 
-{-
-The pointer_symbol s for verbs are:
 
-    !    Antonym 
-    @    Hypernym 
-     ~    Hyponym 
-    *    Entailment 
-    >    Cause 
-    ^    Also see 
-    $    Verb Group 
-    +    Derivationally related form         
-    ;c    Domain of synset - TOPIC 
-    ;r    Domain of synset - REGION 
-    ;u    Domain of synset - USAGE 
--}  
-data PtrSymVerb = AntoV | HyperV | HypoV | EntailV | CauseV | AlsoSeeV | VerbGroupV | DerivRelV | DSynTopicV | DSynRegionV | DSynUsageV deriving (Eq, Show)
 
 ptrSymVerb :: A.Parser PtrSymVerb
 ptrSymVerb =
@@ -162,20 +121,7 @@ ptrSymVerb =
   (DSynRegionV <$ A.string ";r") <|>
   (DSynUsageV <$ A.string ";u") 
 
-{-
-The pointer_symbol s for adjectives are:
 
-    !    Antonym 
-    &    Similar to 
-    <    Participle of verb 
-    \    Pertainym (pertains to noun) 
-    =    Attribute 
-    ^    Also see 
-    ;c    Domain of synset - TOPIC 
-    ;r    Domain of synset - REGION 
-    ;u    Domain of synset - USAGE 
--}
-data PtrSymAdj = AntoAdj | SimilarToAdj | ParticipleAdj | PertainymAdj | AttributeAdj | AlsoSeeAdj | DSynTopicAdj | DSynRegionAdj | DSynUsageAdj deriving (Eq, Show)
 
 ptrSymAdj :: A.Parser PtrSymAdj
 ptrSymAdj =
@@ -188,16 +134,7 @@ ptrSymAdj =
   (DSynRegionAdj <$ A.string ";r") <|>
   (DSynUsageAdj <$ A.string ";u")   
 
-{-
-The pointer_symbol s for adverbs are:
 
-    !    Antonym 
-    \    Derived from adjective 
-    ;c    Domain of synset - TOPIC 
-    ;r    Domain of synset - REGION 
-    ;u    Domain of synset - USAGE 
--}
-data PtrSymAdv = AntoAdv | DerivedFromAdjAdv | DSynTopicAdv | DSynRegionAdv | DSynUsageAdv deriving (Eq, Show)
 
 ptrSymAdv :: A.Parser PtrSymAdv
 ptrSymAdv =

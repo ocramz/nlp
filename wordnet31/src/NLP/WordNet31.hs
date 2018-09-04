@@ -10,6 +10,10 @@ import qualified Data.ByteString.Lazy as LBS
 import NLP.WordNet31.Parsers
 import NLP.WordNet31.Types
 
+-- mmapDataDB :: POS -> ByteOffset -> Int -> IO LBS.ByteString
+-- mmapDataDB p = mmapFile fpath where
+--   fpath = "data." ++ showPOS p
+
 -- | mmap a file in read-only mode, starting at a specific byte offset and copying n bytes into a lazy ByteString
 mmapFile ::
      FilePath
