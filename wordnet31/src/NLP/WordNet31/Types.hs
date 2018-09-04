@@ -11,6 +11,10 @@ type Lemma = T.Text
 type ByteOffset = Int64
 
 
+newtype LemmaDB a = LemmaDB (M.Map Lemma a)
+
+
+
 -- | A row of an index file (e.g. index.noun)
 data IndexRow = IndexRow {
     ixLemma :: Lemma 
