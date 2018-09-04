@@ -13,12 +13,8 @@ import qualified Data.Attoparsec.Text.Lazy as AL
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
 
-import Foreign.Ptr (Ptr(..), plusPtr)
-import Foreign.ForeignPtr (ForeignPtr(..)) 
-import System.IO.MMap (mmapFileByteStringLazy)
-import Data.Int (Int64(..))
-
-import qualified Data.ByteString.Lazy as LBS
+-- import Data.Int (Int64(..))
+import NLP.WordNet31.Types
 
 {- |
 
@@ -29,13 +25,7 @@ Each index file is an alphabetized list of all the words found in WordNet in the
 A data file for a syntactic category contains information corresponding to the synsets that were specified in the lexicographer files, with relational pointers resolved to synset_offset s. Each line corresponds to a synset. Pointers are followed and hierarchies traversed by moving from one synset to another via the synset_offset s.
 -}
 
--- | mmap a file in read-only mode, starting at a specific byte offset and copying n bytes into a lazy ByteString
-mmapFile ::
-     FilePath
-  -> ByteOffset  -- ^ Offset in bytes
-  -> Int    -- ^ Size in bytes
-  -> IO LBS.ByteString
-mmapFile fp offs n = mmapFileByteStringLazy fp (Just (offs, offs + fromIntegral n))
+
 
 {-
 -- examples from index.noun :
@@ -59,8 +49,6 @@ indexRow = do
   pure $ IndexRow l ptrss ntagsense (NE.fromList offs)
   
 
-type Lemma = T.Text
-type ByteOffset = Int64
 
 lemma :: AL.Parser Lemma
 lemma = A.takeWhile (A.inClass "a-z_")
@@ -75,6 +63,7 @@ pos =
   (Verb  <$ A.char 'v') <|>
   (Adj  <$ A.char 'a') <|>
   (Adv  <$ A.char 'r')
+
 
 ptrs :: Int -> POS -> A.Parser POSp
 ptrs n pp = 

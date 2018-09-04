@@ -20,6 +20,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     NLP.WordNet31
   other-modules:       NLP.WordNet31.Parsers
+                       NLP.WordNet31.Types
   build-depends:       base >= 4.7 && < 5
                      , attoparsec
                      , bytestring
