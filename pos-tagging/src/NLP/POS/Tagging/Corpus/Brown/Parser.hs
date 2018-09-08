@@ -1,17 +1,22 @@
 {-# language DeriveGeneric, OverloadedStrings  #-}
-module NLP.POS.Tagging.Corpus.Brown.Parser where
+{-
+Parser for the Brown corpus
+
+Manual : http://clu.uni.no/icame/brown/bcm.html
+-}
+module NLP.POS.Tagging.Corpus.Brown.Parser (Tag(..), Tagged(..), posTag) where
 
 import GHC.Generics
 
 import Control.Applicative
 import Data.Functor ((<$))
-
+import qualified Data.List.NonEmpty as NE
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Text as T
 import qualified Data.Text.IO as T (readFile)
 
 
--- | Tags used in the Brown corpus. 
+-- | Tags used in the Brown corpus 
 data Tag =
   Sentence -- ^   . 	sentence (. ; ? *)
   | LParen -- ^ ( 	left paren
@@ -98,19 +103,25 @@ data Tag =
   | WPS -- ^ WPS 	nominative wh- pronoun (who, which, that)
   | WQL -- ^ WQL 	wh- qualifier (how)
   | WRB -- ^ WRB 	wh- adverb (how, where, when)
-  | HLMod  -- ^ Headline capitalization modifier
-  | TLMod  -- ^ Title capitalization modifier
-  | NCMod  -- ^ Emphasized word modifier
-  | FWMod  -- ^ Foreign word modifier
+  -- | HLMod  -- ^ Headline capitalization modifier
+  -- | TLMod  -- ^ Title capitalization modifier
+  -- | NCMod  -- ^ Emphasized word modifier
+  -- | FWMod  -- ^ Foreign word modifier
   deriving (Eq, Show, Enum, Generic)
 
+-- data Tagged a = Tagged {
+--     taggedPos :: a 
+--   , tagPrimary :: Tag
+--   , tagModifiers :: [Tag]
+--   } deriving (Eq, Show)
+
 data Tagged a = Tagged {
-    taggedPos :: a 
-  , tagPrimary :: Tag
-  , tagModifiers :: [Tag]
-  } deriving (Eq, Show)
+    taggedPos :: a
+  , tags :: NE.NonEmpty Tag 
+                       } deriving (Eq, Show)
 
 
+-- | Part-of-speech basic parser
 posTag :: A.Parser Tag 
 posTag =
   (Sentence <$ A.satisfy (A.inClass ".:?") ) <|>
@@ -125,9 +136,9 @@ posTag =
   (ABX <$ A.string "abx") <|>
   (AP <$ A.string "ap") <|>
   (AT <$ A.string "at") <|>
-  (BE <$ A.string "be") <|>
-  (BED <$ A.string "bed") <|>
   (BEDZ <$ A.string "bedz") <|>
+  (BED <$ A.string "bed") <|>
+  (BE <$ A.string "be") <|>  
   (BEG <$ A.string "beg") <|>
   (BEM <$ A.string "bem") <|>
   (BEN <$ A.string "ben") <|>
@@ -136,13 +147,13 @@ posTag =
   (CC <$ A.string "cc") <|>
   (CD <$ A.string "cd") <|>
   (CS <$ A.string "cs") <|>
-  (DO <$ A.string "do") <|>
   (DOD <$ A.string "dod") <|>
   (DOZ <$ A.string "doz") <|>
-  (DT <$ A.string "dt") <|>
+  (DO <$ A.string "do") <|>  
   (DTI <$ A.string "dti") <|>
   (DTS <$ A.string "dts") <|>
   (DTX <$ A.string "dtx") <|>
+  (DT <$ A.string "dt") <|>  
   (EX <$ A.string "ex") <|>
   (FW <$ A.string "fw") <|>
   (HV <$ A.string "hv") <|>
@@ -150,31 +161,31 @@ posTag =
   (HVG <$ A.string "hvg") <|>
   (HVN <$ A.string "hvn") <|>
   (IN <$ A.string "in") <|>
-  (JJ <$ A.string "jj") <|>
   (JJR <$ A.string "jjr") <|>
   (JJS <$ A.string "jjs") <|>
   (JJT <$ A.string "jjt") <|>
+  (JJ <$ A.string "jj") <|>  
   (MD <$ A.string "md") <|>
   (NC <$ A.string "nc") <|>
-  (NN <$ A.string "nn") <|>
   (NNPoss <$ A.string "nn$") <|>
   (NNS <$ A.string "nns") <|>
   (NNSPoss <$ A.string "nns$") <|>
+  (NN <$ A.string "nn") <|>  
   (NP <$ A.string "np") <|>
   (NPPoss <$ A.string "np$") <|>
   (NPS <$ A.string "nps") <|>
   (NPSPoss <$ A.string "nps$") <|>
   (NR <$ A.string "nr") <|>
   (OD <$ A.string "od") <|>
-  (PN <$ A.string "pn") <|>
   (PNPoss <$ A.string "pn$") <|>
-  (PPPoss <$ A.string "pp$") <|>
+  (PN <$ A.string "pn") <|>  
   (PPPoss2 <$ A.string "pp$$") <|>
-  (PPL <$ A.string "ppl") <|>
+  (PPPoss <$ A.string "pp$") <|>  
   (PPLS <$ A.string "ppls") <|>
+  (PPL <$ A.string "ppl") <|>  
   (PPO <$ A.string "ppo") <|>
-  (PPS <$ A.string "pps") <|>
   (PPSS <$ A.string "ppss") <|>
+  (PPS <$ A.string "pps") <|>  
   (PRP <$ A.string "prp") <|>
   (QL <$ A.string "ql") <|>
   (QLP <$ A.string "qlp") <|>
@@ -185,22 +196,48 @@ posTag =
   (RP <$ A.string "rp") <|>
   (TO <$ A.string "to") <|>
   (UH <$ A.string "uh") <|>
-  (VB <$ A.string "vb") <|>
   (VBD <$ A.string "vbd") <|>
   (VBG <$ A.string "vbg") <|>
   (VBN <$ A.string "vbn") <|>
   (VBP <$ A.string "vbp") <|>
   (VBZ <$ A.string "vbz") <|>
+  (VB <$ A.string "vb") <|>  
   (WDT <$ A.string "wdt") <|>
   (WPPoss <$ A.string "wp$") <|>
   (WPO <$ A.string "wpo") <|>
   (WPS <$ A.string "wps") <|>
   (WQL <$ A.string "wql") <|>
-  (WRB <$ A.string "wrb") <|>
-  (HLMod <$ A.string "hl") <|>
-  (TLMod <$ A.string "tl") <|>
-  (NCMod <$ A.string "nc") <|>
-  (FWMod <$ A.string "fw")
+  (WRB <$ A.string "wrb") 
+  -- (HLMod <$ A.string "hl") <|>
+  -- (TLMod <$ A.string "tl") <|>
+  -- (NCMod <$ A.string "nc") <|>
+  -- (FWMod <$ A.string "fw")
+
+-- data PosTag
+
+-- title = posTag <* (A.char '-' >> A.string "tl")
+ 
+
+-- multiPosTag :: A.Parser (NE.NonEmpty Tag)
+-- multiPosTag = NE.fromList <$> A.sepBy posTag (A.string "+")
+
+multi :: A.Parser a -> A.Parser (NE.NonEmpty a)
+multi p = NE.fromList <$> A.sepBy p (A.string "+")
+
+foreignWord :: A.Parser Tag
+foreignWord = A.string "fw-" *> posTag
+
+citedNoun :: A.Parser Tag
+citedNoun = posTag <* A.string "-nc"
+
+
+cap :: A.Parser Tag
+cap = headlineCap <|> titleCap
+  where
+    headlineCap = posTag <* A.string "-hl"
+    titleCap = posTag <* A.string "-tl"
+
+
 
 
 -- | Test data
