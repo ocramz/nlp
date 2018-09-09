@@ -16,6 +16,7 @@ Multiword units are marked using an additional XML element (<mw>) which carries 
 module NLP.POS.Tagging.Corpus.BNC.Parser where
 
 import GHC.Generics
+import Data.String 
 import Data.Functor (($>), (<$))
 import Control.Applicative
 import Control.Monad 
@@ -184,11 +185,22 @@ pos =
 -- w unk = unk <$> tag <*> str <*> pos where
 --   str = A.many1 $ A.satisfy (A.inClass "a-z")
 
-asdf as =
-  maybe (Left "x") (A.parseOnly pos) (lookup "c5" as)
+-- anyString :: A.Parser BS.ByteString
+-- anyString = BS.pack <$> A.many1 (A.satisfy (A.inClass "a-zA-Z "))
 
+-- asdf as =
+--   maybeEither "x" (A.parseOnly pos) (lookup "c5" as)
 
+asdf :: (Eq i, IsString i) => [(i, BS.ByteString)] -> Either String POS
+asdf as = do
+  c5v <- lookupE "Not found" "c5" as
+  A.parseOnly pos c5v
 
+lookupE :: Eq i => a -> i -> [(i, b)] -> Either a b
+lookupE e i ixs = maybeEither e (lookup i ixs)
+
+maybeEither :: a -> Maybe b -> Either a b
+maybeEither e = maybe (Left e) Right
 
 
 
