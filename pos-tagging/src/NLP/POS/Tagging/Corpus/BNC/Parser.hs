@@ -23,7 +23,7 @@ import Control.Monad
 import qualified Data.ByteString as BS
 import qualified Data.Attoparsec.ByteString as A
 import Xeno.DOM
--- import Xeno.Types.XenoException
+import Xeno.Types
 
 
 data Tag =
@@ -186,27 +186,62 @@ pos =
 --   str = A.many1 $ A.satisfy (A.inClass "a-z")
 
 -- anyString :: A.Parser BS.ByteString
--- anyString = BS.pack <$> A.many1 (A.satisfy (A.inClass "a-zA-Z "))
-
--- asdf as =
---   maybeEither "x" (A.parseOnly pos) (lookup "c5" as)
-
-asdf :: (Eq i, IsString i) => [(i, BS.ByteString)] -> Either String POS
-asdf as = do
-  c5v <- lookupE "Not found" "c5" as
-  A.parseOnly pos c5v
-
-lookupE :: Eq i => a -> i -> [(i, b)] -> Either a b
-lookupE e i ixs = maybeEither e (lookup i ixs)
-
-maybeEither :: a -> Maybe b -> Either a b
-maybeEither e = maybe (Left e) Right
+anyString = BS.pack <$> A.many1 (A.satisfy (A.inClass "a-zA-Z' "))
 
 
 
+-- hwe :: (Eq i, IsString e, IsString i) => [(i, b)] -> Either e b
+-- hwe as = lookupE "\"hw\" field not found" "hw" as
 
-data W a = W { wC5 :: Tag, wHw :: Maybe a, wPos :: Maybe POS } deriving (Eq, Show)
+-- tage :: (Eq i, IsString i) => [(i, BS.ByteString)] -> Either String Tag
+-- tage as = do
+--   c5v <- lookupE "\"c5\" tag field not found" "c5" as
+--   A.parseOnly tag c5v
 
+-- pose :: (Eq i, IsString i) => [(i, BS.ByteString)] -> Either String POS
+-- pose as = do
+--   p <- lookupE "\"pos\" tag field not found" "pos" as
+--   A.parseOnly pos p
+
+
+-- | Parse a single word and gather text and tags into a W structure
+parseWord :: BS.ByteString -> Either String (W BS.ByteString)
+parseWord bs =
+  case parse bs of
+    Left _ -> Left "moo"
+    Right x -> parseW x
+
+-- parseW :: Node -> Either String (W BS.ByteString)
+parseW n = do
+  w <- getContentText $ head $ contents n
+  (h, c5, p) <- asdf $ attributes n
+  pure $ W w h c5 p
+  
+-- asdf :: [(a, BS.ByteString)] -> Either String (W BS.ByteString)
+asdf as =
+  let
+    (c5:hw:p:[]) = map snd as
+  in do
+    a <- A.parseOnly tag c5
+    b <- A.parseOnly anyString hw
+    c <- A.parseOnly pos p
+    pure (b, a, c)
+
+    
+    
+            
+getContentText :: IsString a => Content -> Either a BS.ByteString
+getContentText c = case c of
+  (Text t) -> Right t
+  _ -> Left "Not a Text node"
+
+
+
+
+-- | A word tag W contains a headword, the C5 token and the inferred part-of-speech tag
+data W a = W { ww :: a,  wHw :: a, wC5 :: Tag, wPos :: POS } deriving (Eq, Show)
+
+-- | A word can be either simple or multiple (e.g. phrasal verbs are tagged as multi-words <mw>)
 data Word a = Word a | MWord [a] deriving (Eq, Show)
 
 
@@ -217,3 +252,14 @@ t0 = "<s n=\"78\"><w c5=\"PRP\" hw=\"for\" pos=\"PREP\">For </w><w c5=\"AT0\" hw
 
 t1 :: BS.ByteString
 t1 = "<quote><p> <s n=\"258\"><w c5=\"AT0\" hw=\"the\" pos=\"ART\">The </w><w c5=\"AJ0\" hw=\"unclothed\" pos=\"ADJ\">unclothed </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"XX0\" hw=\"not\" pos=\"ADV\">not </w><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><c c5=\"PUQ\">‘</c><w c5=\"NN1\" hw=\"self\" pos=\"SUBST\">self </w><w c5=\"CJC\" hw=\"but\" pos=\"CONJ\">but </w><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><w c5=\"AJ0\" hw=\"socialised\" pos=\"ADJ\">socialised </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body</w><c c5=\"PUN\">, </c><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body </w><w c5=\"CJT-DT0\" hw=\"that\" pos=\"CONJ\">that </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"VVN\" hw=\"open\" pos=\"VERB\">opened </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"NN2\" hw=\"instrument\" pos=\"SUBST\">instruments</w><c c5=\"PUN\">, </c><w c5=\"VVD\" hw=\"technologize\" pos=\"VERB\">technologized</w><c c5=\"PUN\">, </c><w c5=\"VVD-VVN\" hw=\"wound\" pos=\"VERB\">wounded</w><c c5=\"PUN\">, </c><w c5=\"DPS\" hw=\"it\" pos=\"PRON\">its </w><w c5=\"NN2\" hw=\"organ\" pos=\"SUBST\">organs </w><w c5=\"VVN\" hw=\"display\" pos=\"VERB\">displayed </w><w c5=\"PRP\" hw=\"to\" pos=\"PREP\">to </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"AJ0\" hw=\"outside\" pos=\"ADJ\">outside </w><w c5=\"NN1\" hw=\"world\" pos=\"SUBST\">world</w><c c5=\"PUN\">.</c></s> \n <s n=\"259\"><w c5=\"AT0\" hw=\"the\" pos=\"ART\">The </w><c c5=\"PUQ\">‘</c><w c5=\"AJ0\" hw=\"inner\" pos=\"ADJ\">inner</w><c c5=\"PUQ\">’ </c><w c5=\"NN1-NP0\" hw=\"frida\" pos=\"SUBST\">Frida </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"VVN\" hw=\"control\" pos=\"VERB\">controlled </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"AJ0\" hw=\"modern\" pos=\"ADJ\">modern </w><w c5=\"NN1\" hw=\"society\" pos=\"SUBST\">society </w><w c5=\"AV0\" hw=\"far\" pos=\"ADV\">far </w><w c5=\"DT0\" hw=\"more\" pos=\"ADJ\">more </w><w c5=\"CJS\" hw=\"than\" pos=\"CONJ\">than </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"AJ0\" hw=\"clothed\" pos=\"ADJ\">clothed </w><w c5=\"NP0-NN1\" hw=\"frida\" pos=\"SUBST\">Frida</w><c c5=\"PUN\">, </c><w c5=\"PNQ\" hw=\"who\" pos=\"PRON\">who </w><w c5=\"AV0\" hw=\"often\" pos=\"ADV\">often </w><w c5=\"VVZ\" hw=\"mark\" pos=\"VERB\">marks </w><w c5=\"DPS\" hw=\"she\" pos=\"PRON\">her </w><w c5=\"NN1\" hw=\"deviation\" pos=\"SUBST\">deviation </w><w c5=\"PRP\" hw=\"from\" pos=\"PREP\">from </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"norm\" pos=\"SUBST\">norm </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"AV0\" hw=\"defiantly\" pos=\"ADV\">defiantly </w><w c5=\"VVG\" hw=\"return\" pos=\"VERB\">returning </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"gaze\" pos=\"SUBST\">gaze </w><w c5=\"PRF\" hw=\"of\" pos=\"PREP\">of </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"viewer\" pos=\"SUBST\">viewer</w><c c5=\"PUN\">.</c></s></p></quote>"
+
+t2 :: BS.ByteString
+t2 = "<w c5=\"PRP\" hw=\"for\" pos=\"PREP\">For </w>"
+
+--
+
+lookupE :: Eq i => e -> i -> [(i, b)] -> Either e b
+lookupE e i ixs = maybeEither e (lookup i ixs)
+
+maybeEither :: a -> Maybe b -> Either a b
+maybeEither e = maybe (Left e) Right
