@@ -154,6 +154,7 @@ tag =
   (A.string "ZZ0" $> ZZ0)   
 
 
+-- code gen helper 
 mkPosP :: IO ()
 mkPosP =
   putStrLn $ concatMap mkStr ps where
@@ -176,6 +177,15 @@ pos =
   
 
 
+-- c5 attrs =
+--   let maybs = sequenceA [lookup "c5", lookup "hw", lookup "pos"]
+--   in sequenceA (maybs attrs)
+
+-- w unk = unk <$> tag <*> str <*> pos where
+--   str = A.many1 $ A.satisfy (A.inClass "a-z")
+
+asdf as =
+  maybe (Left "x") (A.parseOnly pos) (lookup "c5" as)
 
 
 
@@ -183,8 +193,7 @@ pos =
 
 
 
-
-data W a = W { wC5 :: Tag, wHw :: a, wPos :: POS } deriving (Eq, Show)
+data W a = W { wC5 :: Tag, wHw :: Maybe a, wPos :: Maybe POS } deriving (Eq, Show)
 
 data Word a = Word a | MWord [a] deriving (Eq, Show)
 
@@ -193,3 +202,6 @@ data Word a = Word a | MWord [a] deriving (Eq, Show)
 
 t0 :: BS.ByteString
 t0 = "<s n=\"78\"><w c5=\"PRP\" hw=\"for\" pos=\"PREP\">For </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"DT0\" hw=\"same\" pos=\"ADJ\">same </w><w c5=\"NN1\" hw=\"quality\" pos=\"SUBST\">quality </w><w c5=\"VM0\" hw=\"can\" pos=\"VERB\">can </w><w c5=\"VBI\" hw=\"be\" pos=\"VERB\">be </w><w c5=\"VVN\" hw=\"interpret\" pos=\"VERB\">interpreted </w><w c5=\"AV0\" hw=\"differently\" pos=\"ADV\">differently </w><mw c5=\"PRP\"><w c5=\"VVG\" hw=\"accord\" pos=\"VERB\">according </w><w c5=\"PRP\" hw=\"to\" pos=\"PREP\">to </w></mw><w c5=\"PNI-CRD\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"point\" pos=\"SUBST\">point </w><w c5=\"PRF\" hw=\"of\" pos=\"PREP\">of </w><w c5=\"NN1\" hw=\"view\" pos=\"SUBST\">view</w><c c5=\"PUN\">, </c><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"experience\" pos=\"SUBST\">experience</w><c c5=\"PUN\">, </c><w c5=\"CJC\" hw=\"and\" pos=\"CONJ\">and </w><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN2\" hw=\"feeling\" pos=\"SUBST\">feelings</w><c c5=\"PUN\">.</c></s>"
+
+t1 :: BS.ByteString
+t1 = "<quote><p> <s n=\"258\"><w c5=\"AT0\" hw=\"the\" pos=\"ART\">The </w><w c5=\"AJ0\" hw=\"unclothed\" pos=\"ADJ\">unclothed </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"XX0\" hw=\"not\" pos=\"ADV\">not </w><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><c c5=\"PUQ\">‘</c><w c5=\"NN1\" hw=\"self\" pos=\"SUBST\">self </w><w c5=\"CJC\" hw=\"but\" pos=\"CONJ\">but </w><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><w c5=\"AJ0\" hw=\"socialised\" pos=\"ADJ\">socialised </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body</w><c c5=\"PUN\">, </c><w c5=\"AT0\" hw=\"a\" pos=\"ART\">a </w><w c5=\"NN1\" hw=\"body\" pos=\"SUBST\">body </w><w c5=\"CJT-DT0\" hw=\"that\" pos=\"CONJ\">that </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"VVN\" hw=\"open\" pos=\"VERB\">opened </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"NN2\" hw=\"instrument\" pos=\"SUBST\">instruments</w><c c5=\"PUN\">, </c><w c5=\"VVD\" hw=\"technologize\" pos=\"VERB\">technologized</w><c c5=\"PUN\">, </c><w c5=\"VVD-VVN\" hw=\"wound\" pos=\"VERB\">wounded</w><c c5=\"PUN\">, </c><w c5=\"DPS\" hw=\"it\" pos=\"PRON\">its </w><w c5=\"NN2\" hw=\"organ\" pos=\"SUBST\">organs </w><w c5=\"VVN\" hw=\"display\" pos=\"VERB\">displayed </w><w c5=\"PRP\" hw=\"to\" pos=\"PREP\">to </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"AJ0\" hw=\"outside\" pos=\"ADJ\">outside </w><w c5=\"NN1\" hw=\"world\" pos=\"SUBST\">world</w><c c5=\"PUN\">.</c></s> \n <s n=\"259\"><w c5=\"AT0\" hw=\"the\" pos=\"ART\">The </w><c c5=\"PUQ\">‘</c><w c5=\"AJ0\" hw=\"inner\" pos=\"ADJ\">inner</w><c c5=\"PUQ\">’ </c><w c5=\"NN1-NP0\" hw=\"frida\" pos=\"SUBST\">Frida </w><w c5=\"VBZ\" hw=\"be\" pos=\"VERB\">is </w><w c5=\"VVN\" hw=\"control\" pos=\"VERB\">controlled </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"AJ0\" hw=\"modern\" pos=\"ADJ\">modern </w><w c5=\"NN1\" hw=\"society\" pos=\"SUBST\">society </w><w c5=\"AV0\" hw=\"far\" pos=\"ADV\">far </w><w c5=\"DT0\" hw=\"more\" pos=\"ADJ\">more </w><w c5=\"CJS\" hw=\"than\" pos=\"CONJ\">than </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"AJ0\" hw=\"clothed\" pos=\"ADJ\">clothed </w><w c5=\"NP0-NN1\" hw=\"frida\" pos=\"SUBST\">Frida</w><c c5=\"PUN\">, </c><w c5=\"PNQ\" hw=\"who\" pos=\"PRON\">who </w><w c5=\"AV0\" hw=\"often\" pos=\"ADV\">often </w><w c5=\"VVZ\" hw=\"mark\" pos=\"VERB\">marks </w><w c5=\"DPS\" hw=\"she\" pos=\"PRON\">her </w><w c5=\"NN1\" hw=\"deviation\" pos=\"SUBST\">deviation </w><w c5=\"PRP\" hw=\"from\" pos=\"PREP\">from </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"norm\" pos=\"SUBST\">norm </w><w c5=\"PRP\" hw=\"by\" pos=\"PREP\">by </w><w c5=\"AV0\" hw=\"defiantly\" pos=\"ADV\">defiantly </w><w c5=\"VVG\" hw=\"return\" pos=\"VERB\">returning </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"gaze\" pos=\"SUBST\">gaze </w><w c5=\"PRF\" hw=\"of\" pos=\"PREP\">of </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"NN1\" hw=\"viewer\" pos=\"SUBST\">viewer</w><c c5=\"PUN\">.</c></s></p></quote>"
