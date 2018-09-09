@@ -9,7 +9,7 @@ module NLP.POS.Tagging.Corpus.Brown.Parser (Tag(..), Tagged(..), posTag) where
 import GHC.Generics
 
 import Control.Applicative
-import Data.Functor ((<$))
+import Data.Functor ((<$), ($>))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Text as T
@@ -21,7 +21,7 @@ data Tag =
   Sentence -- ^   . 	sentence (. ; ? *)
   | LParen -- ^ ( 	left paren
   | RParen -- ^ ) 	right paren
-  | Not -- ^ * 	not, n't
+  -- | Not -- ^ * 	not, n't
   | Dash -- ^ -- 	dash
   | Comma -- ^ , 	comma
   | Colon -- ^ : 	colon
@@ -127,7 +127,7 @@ posTag =
   (Sentence <$ A.satisfy (A.inClass ".:?") ) <|>
   (LParen <$ A.char '(') <|>
   (RParen <$ A.char ')') <|>
-  (Not <$ A.char '*') <|>
+  -- (Not <$ A.char '*') <|>
   (Dash <$ A.string "--") <|>
   (Comma <$ A.char ',') <|>
   (Colon <$ A.char ':') <|>
@@ -156,10 +156,10 @@ posTag =
   (DT <$ A.string "dt") <|>  
   (EX <$ A.string "ex") <|>
   (FW <$ A.string "fw") <|>
-  (HV <$ A.string "hv") <|>
   (HVD <$ A.string "hvd") <|>
   (HVG <$ A.string "hvg") <|>
   (HVN <$ A.string "hvn") <|>
+  (HV <$ A.string "hv") <|>  
   (IN <$ A.string "in") <|>
   (JJR <$ A.string "jjr") <|>
   (JJS <$ A.string "jjs") <|>
@@ -171,10 +171,10 @@ posTag =
   (NNS <$ A.string "nns") <|>
   (NNSPoss <$ A.string "nns$") <|>
   (NN <$ A.string "nn") <|>  
-  (NP <$ A.string "np") <|>
   (NPPoss <$ A.string "np$") <|>
-  (NPS <$ A.string "nps") <|>
   (NPSPoss <$ A.string "nps$") <|>
+  (NPS <$ A.string "nps") <|>  
+  (NP <$ A.string "np") <|>  
   (NR <$ A.string "nr") <|>
   (OD <$ A.string "od") <|>
   (PNPoss <$ A.string "pn$") <|>
@@ -221,22 +221,43 @@ posTag =
 -- multiPosTag :: A.Parser (NE.NonEmpty Tag)
 -- multiPosTag = NE.fromList <$> A.sepBy posTag (A.string "+")
 
+-- | Composite tag (tags separated by `+`)
 multi :: A.Parser a -> A.Parser (NE.NonEmpty a)
 multi p = NE.fromList <$> A.sepBy p (A.string "+")
 
-foreignWord :: A.Parser Tag
-foreignWord = A.string "fw-" *> posTag
 
-citedNoun :: A.Parser Tag
-citedNoun = posTag <* A.string "-nc"
+data Negated = Neg | NonNeg deriving (Eq, Show)
 
+notTag p = bool (p <* A.char '*')
 
-cap :: A.Parser Tag
+-- | Foreign word (prefix tag)
+foreignWord :: A.Parser T.Text
+foreignWord = A.string "fw-"
+
+-- | Cited noun (suffix tag)
+citedNoun :: A.Parser T.Text
+citedNoun = A.string "-nc"
+
+-- | Capitalized word (suffix tag)
+cap :: A.Parser T.Text
 cap = headlineCap <|> titleCap
   where
-    headlineCap = posTag <* A.string "-hl"
-    titleCap = posTag <* A.string "-tl"
+    headlineCap = A.string "-hl"
+    titleCap = A.string "-tl"
 
+
+data Tagged' = T' Tag !Bool !Bool !Bool deriving (Eq, Show)
+
+tagged' :: A.Parser Tagged'
+tagged' = T' <$>
+  posTag <*>
+  bool foreignWord <*>
+  bool citedNoun <*>
+  bool cap
+
+
+bool :: Alternative f => f a -> f Bool
+bool p = A.option False (p $> True)
 
 
 

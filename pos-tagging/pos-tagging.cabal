@@ -8,11 +8,11 @@ license-file:        LICENSE
 author:              Marco Zocca
 maintainer:          ocramz fripost org
 copyright:           2018 Marco Zocca
-category:            Acme
+category:            NLP
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
-tested-with:         GHC == 7.10.2
+tested-with:         GHC == 8.4.3
 
 library
   default-language:    Haskell2010
@@ -20,9 +20,12 @@ library
   hs-source-dirs:      src
   exposed-modules:     NLP.POS.Tagging
   other-modules:       NLP.POS.Tagging.Corpus.Brown.Parser
+                       NLP.POS.Tagging.Corpus.BNC.Parser
   build-depends:       base >= 4.7 && < 5
                      , attoparsec
+                     , bytestring                     
                      , text
+                     , xeno
                      
 
 -- executable pos-tagging
