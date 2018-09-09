@@ -17,7 +17,8 @@ module NLP.POS.Tagging.Corpus.BNC.Parser where
 
 import GHC.Generics
 import Data.Functor (($>), (<$))
-import Control.Applicative 
+import Control.Applicative
+import Control.Monad 
 import qualified Data.ByteString as BS
 import qualified Data.Attoparsec.ByteString as A
 import Xeno.DOM
@@ -88,20 +89,79 @@ data Tag =
   | ZZ0 -- ^Alphabetical symbols (e.g. A, a, B, b, c, d)
   deriving (Eq, Show, Enum, Generic)
 
-posTag :: A.Parser Tag
-posTag =
-  (A.string "AJ0" $> AJ0) <|>
-  (A.string "AJC" $> AJC) <|>
-  (A.string "AJS" $> AJS) <|>
-  (A.string "AT0" $> AT0) <|>
-  (A.string "AV0" $> AV0) <|>
-  (A.string "AVP" $> AVP) 
+tag :: A.Parser Tag
+tag =
+  (A.string "AJ0" $> AJ0) <|> 
+  (A.string "AJC" $> AJC) <|> 
+  (A.string "AJS" $> AJS) <|> 
+  (A.string "AT0" $> AT0) <|> 
+  (A.string "AV0" $> AV0) <|> 
+  (A.string "AVP" $> AVP) <|> 
+  (A.string "AVQ" $> AVQ) <|> 
+  (A.string "CJC" $> CJC) <|> 
+  (A.string "CJS" $> CJS) <|> 
+  (A.string "CJT" $> CJT) <|> 
+  (A.string "CRD" $> CRD) <|> 
+  (A.string "DPS" $> DPS) <|> 
+  (A.string "DT0" $> DT0) <|> 
+  (A.string "DTQ" $> DTQ) <|> 
+  (A.string "EX0" $> EX0) <|> 
+  (A.string "ITJ" $> ITJ) <|> 
+  (A.string "NN0" $> NN0) <|> 
+  (A.string "NN1" $> NN1) <|> 
+  (A.string "NN2" $> NN2) <|> 
+  (A.string "NP0" $> NP0) <|> 
+  (A.string "ORD" $> ORD) <|> 
+  (A.string "PNI" $> PNI) <|> 
+  (A.string "PNP" $> PNP) <|> 
+  (A.string "PNQ" $> PNQ) <|> 
+  (A.string "PNX" $> PNX) <|> 
+  (A.string "POS" $> POS) <|> 
+  (A.string "PRF" $> PRF) <|> 
+  (A.string "PRP" $> PRP) <|> 
+  (A.string "PUL" $> PUL) <|> 
+  (A.string "PUN" $> PUN) <|> 
+  (A.string "PUQ" $> PUQ) <|> 
+  (A.string "PUR" $> PUR) <|> 
+  (A.string "TO0" $> TO0) <|> 
+  (A.string "UNC" $> UNC) <|> 
+  (A.string "VBB" $> VBB) <|> 
+  (A.string "VBD" $> VBD) <|> 
+  (A.string "VBG" $> VBG) <|> 
+  (A.string "VBI" $> VBI) <|> 
+  (A.string "VBN" $> VBN) <|> 
+  (A.string "VBZ" $> VBZ) <|> 
+  (A.string "VDB" $> VDB) <|> 
+  (A.string "VDD" $> VDD) <|> 
+  (A.string "VDG" $> VDG) <|> 
+  (A.string "VDI" $> VDI) <|> 
+  (A.string "VDN" $> VDN) <|> 
+  (A.string "VDZ" $> VDZ) <|> 
+  (A.string "VHB" $> VHB) <|> 
+  (A.string "VHD" $> VHD) <|> 
+  (A.string "VHG" $> VHG) <|> 
+  (A.string "VHI" $> VHI) <|> 
+  (A.string "VHN" $> VHN) <|> 
+  (A.string "VHZ" $> VHZ) <|> 
+  (A.string "VM0" $> VM0) <|> 
+  (A.string "VVB" $> VVB) <|> 
+  (A.string "VVD" $> VVD) <|> 
+  (A.string "VVG" $> VVG) <|> 
+  (A.string "VVI" $> VVI) <|> 
+  (A.string "VVN" $> VVN) <|> 
+  (A.string "VVZ" $> VVZ) <|> 
+  (A.string "XX0" $> XX0) <|> 
+  (A.string "ZZ0" $> ZZ0)   
 
 
-mkPosP p =
-  putStrLn $ concat ["(A.string \"", p, "\" $> ", p, ") <|> \n"]
+mkPosP :: IO ()
+mkPosP =
+  putStrLn $ concatMap mkStr ps where
+  mkStr p = concat ["(A.string \"", p, "\" $> ", p, ") <|> \n"]
+  ps = words "AJ0 AJC AJS AT0 AV0 AVP AVQ CJC CJS CJT CRD DPS DT0 DTQ EX0 ITJ NN0 NN1 NN2 NP0 ORD PNI PNP PNQ PNX POS PRF PRP PUL PUN PUQ PUR TO0 UNC VBB VBD VBG VBI VBN VBZ VDB VDD VDG VDI VDN VDZ VHB VHD VHG VHI VHN VHZ VM0 VVB VVD VVG VVI VVN VVZ XX0 ZZ0"
 
 
+-- | Part of speech 
 data POS = PREP | ART | SUBST | VERB | PRON | CONJ | UNC_ deriving (Eq, Show)
 
 pos :: A.Parser POS
@@ -114,6 +174,13 @@ pos =
   (A.string "CONJ" $> CONJ) <|>
   (A.string "UNC" $> UNC_)
   
+
+
+
+
+
+
+
 
 
 
