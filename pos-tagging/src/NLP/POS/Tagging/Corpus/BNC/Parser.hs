@@ -88,10 +88,19 @@ data Tag =
   | ZZ0 -- ^Alphabetical symbols (e.g. A, a, B, b, c, d)
   deriving (Eq, Show, Enum, Generic)
 
+posTag :: A.Parser Tag
+posTag =
+  (A.string "AJ0" $> AJ0) <|>
+  (A.string "AJC" $> AJC) <|>
+  (A.string "AJS" $> AJS) <|>
+  (A.string "AT0" $> AT0) <|>
+  (A.string "AV0" $> AV0) <|>
+  (A.string "AVP" $> AVP) 
 
 
-t0 :: BS.ByteString
-t0 = "<s n=\"78\"><w c5=\"PRP\" hw=\"for\" pos=\"PREP\">For </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"DT0\" hw=\"same\" pos=\"ADJ\">same </w><w c5=\"NN1\" hw=\"quality\" pos=\"SUBST\">quality </w><w c5=\"VM0\" hw=\"can\" pos=\"VERB\">can </w><w c5=\"VBI\" hw=\"be\" pos=\"VERB\">be </w><w c5=\"VVN\" hw=\"interpret\" pos=\"VERB\">interpreted </w><w c5=\"AV0\" hw=\"differently\" pos=\"ADV\">differently </w><mw c5=\"PRP\"><w c5=\"VVG\" hw=\"accord\" pos=\"VERB\">according </w><w c5=\"PRP\" hw=\"to\" pos=\"PREP\">to </w></mw><w c5=\"PNI-CRD\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"point\" pos=\"SUBST\">point </w><w c5=\"PRF\" hw=\"of\" pos=\"PREP\">of </w><w c5=\"NN1\" hw=\"view\" pos=\"SUBST\">view</w><c c5=\"PUN\">, </c><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"experience\" pos=\"SUBST\">experience</w><c c5=\"PUN\">, </c><w c5=\"CJC\" hw=\"and\" pos=\"CONJ\">and </w><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN2\" hw=\"feeling\" pos=\"SUBST\">feelings</w><c c5=\"PUN\">.</c></s>"
+mkPosP p =
+  putStrLn $ concat ["(A.string \"", p, "\" $> ", p, ") <|> \n"]
+
 
 data POS = PREP | ART | SUBST | VERB | PRON | CONJ | UNC_ deriving (Eq, Show)
 
@@ -111,3 +120,9 @@ pos =
 data W a = W { wC5 :: Tag, wHw :: a, wPos :: POS } deriving (Eq, Show)
 
 data Word a = Word a | MWord [a] deriving (Eq, Show)
+
+
+-- | Example text
+
+t0 :: BS.ByteString
+t0 = "<s n=\"78\"><w c5=\"PRP\" hw=\"for\" pos=\"PREP\">For </w><w c5=\"AT0\" hw=\"the\" pos=\"ART\">the </w><w c5=\"DT0\" hw=\"same\" pos=\"ADJ\">same </w><w c5=\"NN1\" hw=\"quality\" pos=\"SUBST\">quality </w><w c5=\"VM0\" hw=\"can\" pos=\"VERB\">can </w><w c5=\"VBI\" hw=\"be\" pos=\"VERB\">be </w><w c5=\"VVN\" hw=\"interpret\" pos=\"VERB\">interpreted </w><w c5=\"AV0\" hw=\"differently\" pos=\"ADV\">differently </w><mw c5=\"PRP\"><w c5=\"VVG\" hw=\"accord\" pos=\"VERB\">according </w><w c5=\"PRP\" hw=\"to\" pos=\"PREP\">to </w></mw><w c5=\"PNI-CRD\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"point\" pos=\"SUBST\">point </w><w c5=\"PRF\" hw=\"of\" pos=\"PREP\">of </w><w c5=\"NN1\" hw=\"view\" pos=\"SUBST\">view</w><c c5=\"PUN\">, </c><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN1\" hw=\"experience\" pos=\"SUBST\">experience</w><c c5=\"PUN\">, </c><w c5=\"CJC\" hw=\"and\" pos=\"CONJ\">and </w><w c5=\"PNI\" hw=\"one\" pos=\"PRON\">one</w><w c5=\"POS\" hw=\"'s\" pos=\"UNC\">'s </w><w c5=\"NN2\" hw=\"feeling\" pos=\"SUBST\">feelings</w><c c5=\"PUN\">.</c></s>"
