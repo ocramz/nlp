@@ -230,8 +230,7 @@ parseAttributes as =
     c <- A.parseOnly pos p
     pure (b, a, c)
 
-    
-    
+        
             
 getContentText :: IsString a => Content -> Either a BS.ByteString
 getContentText c = case c of
