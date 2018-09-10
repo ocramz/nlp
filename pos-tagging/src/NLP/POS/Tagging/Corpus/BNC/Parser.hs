@@ -26,7 +26,10 @@ import Xeno.DOM
 import Xeno.Types
 
 
-data Tag =
+-- | CLAWS5 tagset
+--
+-- http://ucrel.lancs.ac.uk/claws5tags.html
+data C5Tag =
     AJ0 -- ^Adjective (general or positive) (e.g. good, old, beautiful)
   | AJC -- ^Comparative adjective (e.g. better, older)
   | AJS -- ^Superlative adjective (e.g. best, oldest)
@@ -90,8 +93,8 @@ data Tag =
   | ZZ0 -- ^Alphabetical symbols (e.g. A, a, B, b, c, d)
   deriving (Eq, Show, Enum, Generic)
 
-tag :: A.Parser Tag
-tag =
+c5tag :: A.Parser C5Tag
+c5tag =
   (A.string "AJ0" $> AJ0) <|> 
   (A.string "AJC" $> AJC) <|> 
   (A.string "AJS" $> AJS) <|> 
@@ -152,7 +155,7 @@ tag =
   (A.string "VVN" $> VVN) <|> 
   (A.string "VVZ" $> VVZ) <|> 
   (A.string "XX0" $> XX0) <|> 
-  (A.string "ZZ0" $> ZZ0)   
+  (A.string "ZZ0" $> ZZ0)
 
 
 -- code gen helper 
@@ -208,21 +211,21 @@ anyString = BS.pack <$> A.many1 (A.satisfy (A.inClass "a-zA-Z' "))
 parseWord :: BS.ByteString -> Either String (W BS.ByteString)
 parseWord bs =
   case parse bs of
-    Left _ -> Left "moo"
+    Left e -> Left ("No parse : " ++ show e)
     Right x -> parseW x
 
--- parseW :: Node -> Either String (W BS.ByteString)
+parseW :: Node -> Either String (W BS.ByteString)
 parseW n = do
   w <- getContentText $ head $ contents n
-  (h, c5, p) <- asdf $ attributes n
+  (h, c5, p) <- parseAttributes $ attributes n
   pure $ W w h c5 p
   
--- asdf :: [(a, BS.ByteString)] -> Either String (W BS.ByteString)
-asdf as =
+parseAttributes :: [(a, BS.ByteString)] -> Either String (BS.ByteString, C5Tag, POS)
+parseAttributes as =
   let
     (c5:hw:p:[]) = map snd as
   in do
-    a <- A.parseOnly tag c5
+    a <- A.parseOnly c5tag c5
     b <- A.parseOnly anyString hw
     c <- A.parseOnly pos p
     pure (b, a, c)
@@ -239,7 +242,7 @@ getContentText c = case c of
 
 
 -- | A word tag W contains a headword, the C5 token and the inferred part-of-speech tag
-data W a = W { ww :: a,  wHw :: a, wC5 :: Tag, wPos :: POS } deriving (Eq, Show)
+data W a = W { ww :: a,  wHw :: a, wC5 :: C5Tag, wPos :: POS } deriving (Eq, Show)
 
 -- | A word can be either simple or multiple (e.g. phrasal verbs are tagged as multi-words <mw>)
 data Word a = Word a | MWord [a] deriving (Eq, Show)
