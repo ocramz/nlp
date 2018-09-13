@@ -10,11 +10,10 @@ import qualified Data.ByteString.Lazy as LBS
 import NLP.WordNet31.Parsers
 import NLP.WordNet31.Types
 
--- mmapDataDB :: POS -> ByteOffset -> Int -> IO LBS.ByteString
--- mmapDataDB p = mmapFile fpath where
---   fpath = "data." ++ showPOS p
 
--- | mmap a file in read-only mode, starting at a specific byte offset and copying n bytes into a lazy ByteString
+-- | mmap a file in read-only mode, starting at a specific byte offset and copying n bytes into a lazy ByteString.
+--
+-- This can be used to look up a data definition in constant time since the idx file provides a byte offset into the data file (see https://wordnet.princeton.edu/documentation/wnsearch3wn#read_synset ). 
 mmapFile ::
   FilePath
   -> ByteOffset  -- ^ Offset in bytes
