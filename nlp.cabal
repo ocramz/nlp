@@ -6,9 +6,9 @@ homepage:            https://github.com/ocramz/nlp
 license:             BSD3
 license-file:        LICENSE
 author:              Marco Zocca
-maintainer:          example@example.com
+maintainer:          zocca.marco gmail
 copyright:           2018 Marco Zocca
-category:            Acme
+category:            NLP
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
@@ -18,11 +18,18 @@ library
   default-language:    Haskell2010
   ghc-options:         -Wall
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     Numeric.Statistics.Markov
   build-depends:       base >= 4.7 && < 5
+                     , attoparsec
+                     , bytestring
                      , containers
                      , exceptions
+                     , hashable
+                     , histogram-fill
+                     , massiv
                      , mwc-probability
+                     , text
+                     , unordered-containers
                      , vector
 
 executable nlp
@@ -39,6 +46,7 @@ test-suite spec
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
+  other-modules:       LibSpec
   build-depends:       base
                      , nlp
                      , hspec

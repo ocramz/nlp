@@ -1,14 +1,18 @@
-resolver: lts-12.20
+# resolver: lts-12.14
+resolver: nightly-2019-09-21
 
 packages:
-- nif20
-- pos-tagging
-- question-answering
-- wordnet31
+- .
+# - nif20
+# - pos-tagging
+# - question-answering
+# - wordnet31
+
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-# extra-deps: []
+extra-deps: 
+- histogram-fill-0.9.1.0@sha256:e6233fe467a5a68a2f913e8b31a78e2db81de5c1a8f282be77757ccc040305a8
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
