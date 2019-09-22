@@ -14,33 +14,13 @@ import qualified Data.Map as M (Map, fromList, insert, lookup, empty, alter)
 import Data.Massiv.Array (Array, Source(..), Index(..), Lower(..), D(..), ifoldlWithin', Dim(..))
 -- text
 import qualified Data.Text as T
--- vector
-import qualified Data.Vector as V
-import qualified Data.Vector.Unboxed as VU
+-- -- vector
+-- import qualified Data.Vector as V
+-- import qualified Data.Vector.Unboxed as VU
 
 
+import Data.Histogram
 
-
-
-
-newtype Histo a c = Histo (M.Map a c) deriving (Eq, Show, Functor)
-
-distrib :: (Ord a, Foldable t) => t a -> Histo a (Fixed E6)
-distrib xs = (recip n *) <$> histo 
-  where
-    n = fromIntegral $ length xs
-    histo = fromList xs
-
-fromList :: (Foldable f, Ord a, Num c) => f a -> Histo a c
-fromList = foldl insf (Histo M.empty)
-  where
-    insf = flip insert
-
-insert :: (Ord a, Num c) => a -> Histo a c -> Histo a c
-insert k (Histo mm) = Histo $ M.alter insf k mm where
-  insf = \ case 
-    Nothing -> Just 1
-    Just n  -> Just $ n + 1
 
 
 -- remove punctuation and turn into lowercase
